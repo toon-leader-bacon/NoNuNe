@@ -1,0 +1,3 @@
+[submodule "nocabLib"]
+	path = nocabLib
+	url = git@github.com:toon-leader-bacon/nocabLib.git
