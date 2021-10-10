@@ -17,25 +17,27 @@ public class Network
 
 
   public void backprop(List<double> expectedOutput) {
-
-
     Layer outputLayer = this.layers[this.layers.Count - 1];
     Layer leftmostHidden = this.layers[this.layers.Count - 2];
 
     outputLayer.armUpdateWeights(leftmostHidden, expectedOutput);
 
-    for(int i = this.layers.Count - 2; i >= 0; i++) {
-
+    for(int i = this.layers.Count - 2; i > 0; i--) {
+      Layer currentLayer = this.layers[i];
+      Layer leftLayer = this.layers[i - 1];
+      Layer rightLayer = this.layers[i + 1];
+      currentLayer.armUpdateWeights(leftLayer, rightLayer);
     }
 
-
-    List<double> actualOutput = new List<double>();
-
+    for(int i = 1; i < this.layers.Count; i ++) {
+      this.layers[i].applyUpdateWeights();
+    }
   }
 
   public List<double> evaluate(List<double> input) {
     foreach(Layer l in this.layers) {
       // The output of a given layer becomes the input of the next
+      
       input = l.evaluate(input);
     }
 

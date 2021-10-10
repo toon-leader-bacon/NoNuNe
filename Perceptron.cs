@@ -118,7 +118,7 @@ public class Perceptron
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.001, 0.01]
    */
-  private double learningRate = 0.005d;
+  private double learningRate = 0.5d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 
@@ -343,8 +343,9 @@ public class Perceptron
       double dETot_over_dWeight = this.lowercaseDelta * dNet_over_dWeight(leftLayer, i);
       double newWeight = this._currentWeights[i] - (this.learningRate * dETot_over_dWeight);
 
-      this._newWeights[i] = newWeight;
+      this._newWeights.Add(newWeight);
     }
+    int x = 1; // Breakpoint
   }
 
   public void armUpdateWeights(Layer leftLayer, Layer rightLayer) {

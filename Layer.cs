@@ -26,8 +26,8 @@ public class Layer : IEnumerable<Perceptron>
   }
 
   public List<double> evaluate(List<double> inputs) {
-    List<double> result = new List<double>(inputs.Count);
-    for(int i = 0; i < inputs.Count; i++) {
+    List<double> result = new List<double>(perceptrons.Count);
+    for(int i = 0; i < perceptrons.Count; i++) {
       Perceptron p = this.perceptrons[i];
       result.Add(p.activationValue(inputs));
     }
