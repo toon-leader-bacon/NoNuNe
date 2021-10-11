@@ -12,7 +12,7 @@ class PerceptronFactory {
     SoftPlus
   };
 
-  public static Random rng = new Random();
+  public static NocabRNG rng = new NocabRNG(DateTime.UtcNow); // NocabRNG.defaultRNG; // TODO: Make this more dynamic
 
   private Func<double, double> activatorFunc = ReLU;
   private Func<Perceptron, double> activatorFuncDerivative = ReLUDerivative;
@@ -26,7 +26,7 @@ class PerceptronFactory {
       var af = (activatorFunc == null) ? this.activatorFunc : activatorFunc;
       var afd = (activatorFuncDerivative == null) ? this.activatorFuncDerivative : activatorFuncDerivative;
       return new Perceptron(
-        initialThreshold: rng.NextDouble(),
+        initialThreshold: rng.generateDouble(-1, 1),
         activatorFunc: af,
         activatorFuncDerivative: afd
         );
@@ -64,6 +64,18 @@ class PerceptronFactory {
         // TODO: this case
         break;
     }
+  }
+
+  public static float randomWeight() {
+    return PerceptronFactory.rng.generateFloat(-1f, 1f, true, true);
+  }
+
+  public static double gaussianWeight(float min = -1f, float max = 1f) {
+    double theta = 2 * Math.PI * PerceptronFactory.rng.generateDouble(0, 1);
+    double rho = Math.Sqrt(-2 * Math.Log(1 - PerceptronFactory.rng.generateDouble(0, 1)));
+    double scale = 0.5f * rho;
+    double result = scale * Math.Cos(theta);
+    return NocabMathUtility.clamp(result, -1, 1);
   }
 
 #region Perceptron Functions

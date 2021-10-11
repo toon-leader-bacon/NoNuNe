@@ -180,7 +180,7 @@ public class Perceptron
       // Add new random weights for each input.
       int delta = xInputs.Count - this._currentWeights.Count;
       for (int i = 0;  i < delta; i++) {
-        this._currentWeights.Add(PerceptronFactory.rng.NextDouble());
+        this._currentWeights.Add(PerceptronFactory.gaussianWeight());
       }
     }
 
@@ -345,7 +345,6 @@ public class Perceptron
 
       this._newWeights.Add(newWeight);
     }
-    int x = 1; // Breakpoint
   }
 
   public void armUpdateWeights(Layer leftLayer, Layer rightLayer) {

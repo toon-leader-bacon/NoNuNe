@@ -33,12 +33,12 @@ public class Kernel {
     this.height = height;
     this.depth = depth;
 
-    Random r = PerceptronFactory.rng;
+    NocabRNG r = PerceptronFactory.rng;
     weights = new double[width, height, depth];
     for(int w = 0; w < width; w++) {
       for(int h = 0; h < height; h++) {
         for(int d = 0; d < depth; d++) {
-          weights[w, h, d] = r.NextDouble();
+          weights[w, h, d] = r.generateDouble(-1, 1);
         }
       }
     }

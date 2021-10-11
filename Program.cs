@@ -95,7 +95,7 @@ namespace NoNuNe
 
       int maxIndex = -10;
       double maxConfidence = -1d;
-      for(int epoch = 0; epoch < 10; epoch++) {
+      for(int epoch = 0; epoch < 1000; epoch++) {
         List<double> output = n.evaluate(input);
 
         for(int i = 0; i < output.Count; i++) {
