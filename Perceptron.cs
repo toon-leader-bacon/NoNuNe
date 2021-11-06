@@ -3,38 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace NoNuNe {
-public class Perceptron
-{
-
-  /**
-   * z = w * x + b   = (w dot x) + b
-   * a = sigma(z) = max(0, z)
-   * a is used as the input x into the next layer during forward prop
-   * yhat = last perceptron activation a value
-   */
-
-  /**
-   * Backprop
-   * z = w * a^(L-1) + b
-   * a^L = sigma(z)
-   * Cost0 - (a^L -y)^2
-   *
-   * deltaL = 2(a^L -y)
-   *
-   * dCost/dW = deltaL * a^L(1-a^L) * a^(L-1)
-   *          = "Relative amount by which the weights at layer L affect the total cost
-   *            and we use this to update the weights at this layer."
-   *
-   * deltaL1 = deltaL * a(^L)(1-a^L) * w
-   * deltaC / Delta wL1 = deltaL1 * a^(L-1)(1-a^(L-1)) * a^(L-2)
-   *
-   *  Recap:
-   * Find deltaL (Equation B.4)  == Error of the cost function
-   * find Derivative of the cost function w.r.t. weights in L (Equation B.6)
-   * In next Layer...
-   * Find DeltaL1 (Equation B.8) == gradient w.r.t. output layer of L - 1
-   * Use DeltaL1 to find gradient of cost function w.r.t. the weights in layer L-1 (Equation B.10)s
-   */
+public class Perceptron {
 
   /**
    * The unique identifier for the layer this perceptron is part of.
@@ -118,7 +87,7 @@ public class Perceptron
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.001, 0.01]
    */
-  private double learningRate = 0.5d;
+  private double learningRate = 0.005d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 
@@ -134,34 +103,15 @@ public class Perceptron
   public Perceptron(double initialThreshold,
                     Func<double, double> activatorFunc,
                     Func<Perceptron, double> activatorFuncDerivative) {
-    //
     this._threshold = initialThreshold;
     this.activatorFunc = activatorFunc;
     this.activatorFuncDerivative = activatorFuncDerivative;
 
+    // The weights will be populated "just in time" in the _evaluate() function
+    // using the PerceptronFactory.randomWeight() function
+    // Because the perceptron doesn't know how many inputs it's getting from
+    // the layer before it. 
     this._currentWeights = new List<double>();
-  }
-
-  public Perceptron(double initialThreshold) {
-    /**
-     * A simple constructor. 
-     * @Param initialThreshold: A POSITIVE value for the initial threshold.
-     * typically between 0 and 1.
-     */
-    this._threshold = Math.Abs(initialThreshold);
-    this.activatorFunc = PerceptronFactory.sigmoid;
-    this.activatorFuncDerivative = PerceptronFactory.sigmoidDerivative;
-  }
-
-  public Perceptron(int layerId, int perceptronId, List<double> initialMs, double initialB) {
-    this.LayerId = layerId;
-    this.PerceptronId = perceptronId;
-    _currentWeights = initialMs;
-    _threshold = initialB;
-
-    // TODO: take this in as a parm. For now ReLu is reccomended
-    this.activatorFunc = PerceptronFactory.sigmoid;
-    this.activatorFuncDerivative = PerceptronFactory.sigmoidDerivative;
   }
 
   public double _evaluate(List<double> xInputs) {
@@ -180,7 +130,7 @@ public class Perceptron
       // Add new random weights for each input.
       int delta = xInputs.Count - this._currentWeights.Count;
       for (int i = 0;  i < delta; i++) {
-        this._currentWeights.Add(PerceptronFactory.gaussianWeight());
+        this._currentWeights.Add(PerceptronFactory.randomWeight());
       }
     }
 

@@ -6,13 +6,15 @@ public class Network
 
   private List<Layer> layers = new List<Layer>();
 
+  public Network() {
+    // Empty constructor
+  }
+
   public Network(int size) {
-      Random rand = new Random();
-      int nextLayerId = 0;
-      for (int i = 0; i < Math.Abs(size); i++) {
-        layers.Add(new Layer(nextLayerId, 2));
-        nextLayerId++;
-      }
+    LayerFactory lf = new LayerFactory();
+    for (int i = 0; i < Math.Abs(size); i++) {
+      layers.Add(lf.buildLayer(layerId: i, 2));
+    }
   }
 
 

@@ -10,20 +10,14 @@ public class Layer : IEnumerable<Perceptron>
   public int LayerId { get; set; }
 
   private List<Perceptron> perceptrons = new List<Perceptron>();
+  public int Count { get {return perceptrons.Count; } }
+
 
   PerceptronFactory pFact = new PerceptronFactory();
   public Layer() {
     // Simple default constructor. 
   }
 
-  public Layer(int layerId, int size) {
-    this.LayerId = layerId;
-
-    pFact.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
-    for (int i = 0; i < Math.Abs(size); i++) {
-      this.appendPerceptron(pFact.buildPerceptron(layerId: this.LayerId));
-    }
-  }
 
   public List<double> evaluate(List<double> inputs) {
     List<double> result = new List<double>(perceptrons.Count);

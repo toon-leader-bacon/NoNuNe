@@ -2,7 +2,7 @@ using System;
 
 namespace NoNuNe {
   
-class PerceptronFactory {
+public class PerceptronFactory {
 
   public enum EActivationFunction {
     Sigmoid,
@@ -12,12 +12,13 @@ class PerceptronFactory {
     SoftPlus
   };
 
-  public static NocabRNG rng = new NocabRNG(DateTime.UtcNow); // NocabRNG.defaultRNG; // TODO: Make this more dynamic
+  public static NocabRNG rng = NocabRNG.newRNG;
+
+  public static bool gausianWeight = true;
 
   private Func<double, double> activatorFunc = ReLU;
+
   private Func<Perceptron, double> activatorFuncDerivative = ReLUDerivative;
-
-
 
   public Perceptron buildPerceptron(int layerId = 0, 
                                     int perceptronId = 0,
@@ -26,10 +27,10 @@ class PerceptronFactory {
       var af = (activatorFunc == null) ? this.activatorFunc : activatorFunc;
       var afd = (activatorFuncDerivative == null) ? this.activatorFuncDerivative : activatorFuncDerivative;
       return new Perceptron(
-        initialThreshold: rng.generateDouble(-1, 1),
+        initialThreshold: randomWeight(),
         activatorFunc: af,
         activatorFuncDerivative: afd
-        );
+      );
   }
 
   public void setActivatorFunc(EActivationFunction targetActivationFunc) {
@@ -66,11 +67,15 @@ class PerceptronFactory {
     }
   }
 
-  public static float randomWeight() {
-    return PerceptronFactory.rng.generateFloat(-1f, 1f, true, true);
+  public static double randomWeight() {
+    return gausianWeight ? _gaussianWeight() : _randomWeight();
   }
 
-  public static double gaussianWeight(float min = -1f, float max = 1f) {
+  private static double _randomWeight() {
+    return PerceptronFactory.rng.generateDouble(-1f, 1f, true, true);
+  }
+
+  private static double _gaussianWeight() {
     double theta = 2 * Math.PI * PerceptronFactory.rng.generateDouble(0, 1);
     double rho = Math.Sqrt(-2 * Math.Log(1 - PerceptronFactory.rng.generateDouble(0, 1)));
     double scale = 0.5f * rho;
