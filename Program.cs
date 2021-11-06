@@ -19,10 +19,10 @@ namespace NoNuNe {
       lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
 
       Network n = new Network(0);
-      n.appendLayer(lf.buildLayer(layerId: 0, size: 4)); // Input layer
-      n.appendLayer(lf.buildLayer(1, 32));
-      n.appendLayer(lf.buildLayer(2, 16));
-      n.appendLayer(lf.buildLayer(3, 10)); // Output layer
+      n.appendLayer(lf.buildLayer(layerId: 0, size: 4, perceptronActivation: PerceptronFactory.EActivationFunction.ReLU)); // Input layer
+      n.appendLayer(lf.buildLayer(1, 32, PerceptronFactory.EActivationFunction.LeakyReLU));
+      n.appendLayer(lf.buildLayer(2, 16, PerceptronFactory.EActivationFunction.ReLU));
+      n.appendLayer(lf.buildLayer(3, 10, PerceptronFactory.EActivationFunction.Sigmoid)); // Output layer
       
       Console.WriteLine("hello Nocab");
 

@@ -14,7 +14,7 @@ public class PerceptronFactory {
 
   public static NocabRNG rng = NocabRNG.newRNG;
 
-  public static bool gausianWeight = true;
+  public static bool gausianWeight = false;
 
   private Func<double, double> activatorFunc = ReLU;
 

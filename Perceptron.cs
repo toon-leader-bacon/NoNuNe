@@ -85,9 +85,9 @@ public class Perceptron {
 
   /**
    * A value that represents how quickly this perceptron should adjust
-   * itself during back propagation. Typically between [0.001, 0.01]
+   * itself during back propagation. Typically between [0.1, 0.01]
    */
-  private double learningRate = 0.005d;
+  private double learningRate = 0.05d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 
