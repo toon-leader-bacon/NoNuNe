@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using LightJson;
 namespace NoNuNe {
-public class Network
+public class Network: JsonConvertible
 {
 
   private List<Layer> layers = new List<Layer>();
@@ -63,6 +64,38 @@ public class Network
   public Perceptron GetPerceptron(int layerId, int perceptronId) {
     return this.getLayer(layerId).getPerceptron(perceptronId);
   }
+
+#region JsonConvertible
+
+  public const string MY_JSON_TYPE = "Network_1.0";
+
+  public string myJsonType() {
+    return MY_JSON_TYPE;
+  }
+
+  public JsonObject toJson() {
+    JsonObject result = JsonUtilitiesNocab.initJson(MY_JSON_TYPE);
+
+    JsonArray jsonLayers = new JsonArray();
+    foreach(Layer l in this.layers) {
+      jsonLayers.Add(l.toJson());
+    }
+    result["Layers"] = jsonLayers;
+
+    return result;
+  }
+
+  public void loadJson(JsonObject jo) {
+    JsonUtilitiesNocab.assertValidJson(jo, MY_JSON_TYPE);
+
+    this.layers = new List<Layer>();
+    foreach(JsonObject jLayer in jo["Layers"].AsJsonArray) {
+      this.layers.Add(new Layer(jo));
+    }
+
+  }
+
+#endregion JsonConvertible
 
 }; // Class Network
 

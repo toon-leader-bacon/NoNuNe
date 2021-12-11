@@ -1,9 +1,11 @@
 
+using System.Diagnostics;
 using System;
 using System.Collections.Generic;
+using LightJson;
 
 namespace NoNuNe {
-public class Perceptron {
+public class Perceptron : JsonConvertible {
 
   /**
    * The unique identifier for the layer this perceptron is part of.
@@ -35,6 +37,10 @@ public class Perceptron {
    * weights as part of their backprop calculations.
    */
   private List<double> _newWeights;
+
+
+  private PerceptronFactory.EActivationFunction activatorTypeEnum;
+
 
   /**
    * The Activator Function is used to convert the net value to 
@@ -112,6 +118,12 @@ public class Perceptron {
     // Because the perceptron doesn't know how many inputs it's getting from
     // the layer before it. 
     this._currentWeights = new List<double>();
+  }
+
+  public Perceptron(JsonObject jo) {
+    this._currentWeights = new List<double>();
+    this._newWeights = new List<double>();
+    this.loadJson(jo);
   }
 
   public double _evaluate(List<double> xInputs) {
@@ -325,6 +337,62 @@ public class Perceptron {
   }
 
 #endregion
+
+#region JsonConvertable
+
+  public const string MY_JSON_TYPE = "Perceptron_1.0";
+
+  public string myJsonType() {
+    return MY_JSON_TYPE;
+  }
+
+  public JsonObject toJson() {
+    JsonObject result = JsonUtilitiesNocab.initJson(MY_JSON_TYPE);
+    result["LayerId"] = this.LayerId;
+    result["PerceptronId"] = this.PerceptronId;
+
+    JsonArray curWeights = new JsonArray();
+    foreach(double weight in _currentWeights) {
+      curWeights.Add(weight);
+    }
+    result["CurrentWeights"] = curWeights;
+    result["ActivatorTypeEnum"] = this.activatorTypeEnum.ToString();
+
+    result["Threshold"] = this.Threshold;
+    result["LearningRate"] = this.learningRate;
+
+    return result;
+  }
+
+  public void loadJson(JsonObject jo) {
+    JsonUtilitiesNocab.assertValidJson(jo, MY_JSON_TYPE);
+
+    this.LayerId = jo["LayerId"];
+    this.PerceptronId = jo["PerceptronId"];
+    
+    this._currentWeights = new List<double>();
+    foreach(JsonValue jv in jo["CurrentWeights"].AsJsonArray){
+      this._currentWeights.Add(jv.AsNumber);
+    }
+
+    this._newWeights = new List<double>();
+
+    PerceptronFactory.EActivationFunction newActivatorTypeEnum;
+    bool enumParseSucess = Enum.TryParse<PerceptronFactory.EActivationFunction>(jo["ActivatorTypeEnum"].AsString, out newActivatorTypeEnum);
+    if (enumParseSucess) {
+      this.activatorTypeEnum = newActivatorTypeEnum;
+    } else {
+      // Malformed enum string use default
+      this.activatorTypeEnum = PerceptronFactory.EActivationFunction.ReLU;
+    }
+    this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
+    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+
+    this._threshold = jo["Threshold"];
+    this.learningRate = jo["LearningRate"];
+  }
+
+#endregion JsonConvertable
 
 }; // Class Network
 

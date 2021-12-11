@@ -1,10 +1,11 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using LightJson;
 
 namespace NoNuNe {
   
-public class Layer : IEnumerable<Perceptron>
+public class Layer : IEnumerable<Perceptron>, JsonConvertible
 {
 
   public int LayerId { get; set; }
@@ -18,6 +19,9 @@ public class Layer : IEnumerable<Perceptron>
     // Simple default constructor. 
   }
 
+  public Layer(JsonObject jo) {
+    this.loadJson(jo);
+  }
 
   public List<double> evaluate(List<double> inputs) {
     List<double> result = new List<double>(perceptrons.Count);
@@ -78,6 +82,39 @@ public class Layer : IEnumerable<Perceptron>
   IEnumerator IEnumerable.GetEnumerator() {
     return this.GetEnumerator();
   }
+
+#region JsonConvertible
+
+  public const string MY_JSON_TYPE = "Layer_1.0";
+
+  public string myJsonType() {
+    return MY_JSON_TYPE;
+  }
+
+  public JsonObject toJson() {
+    JsonObject result = JsonUtilitiesNocab.initJson(MY_JSON_TYPE);
+    result["LayerId"] = this.LayerId;
+
+    JsonArray jsonPerceps = new JsonArray();
+    foreach(Perceptron p in this.perceptrons) {
+      jsonPerceps.Add(p.toJson());
+    }
+    result["Perceptrons"] = jsonPerceps;
+
+    return result;
+  }
+
+  public void loadJson(JsonObject jo) {
+    JsonUtilitiesNocab.assertValidJson(jo, MY_JSON_TYPE);
+    this.LayerId = jo["LayerId"];
+    
+    this.perceptrons = new List<Perceptron>();
+    foreach(JsonObject jsonPercep in jo["Perceptrons"].AsJsonArray) {
+      this.perceptrons.Add(new Perceptron(jsonPercep));
+    }
+  }
+
+#endregion JsonConvertible
 
 }; // class Layer
 

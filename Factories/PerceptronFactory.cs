@@ -33,38 +33,59 @@ public class PerceptronFactory {
       );
   }
 
-  public void setActivatorFunc(EActivationFunction targetActivationFunc) {
-    switch(targetActivationFunc) {
+  public static Func<double, double> getActivatorFunc(EActivationFunction enumVal) {
+    switch(enumVal) {
       case EActivationFunction.Sigmoid: {
-        this.activatorFunc = sigmoid;
-        this.activatorFuncDerivative = sigmoidDerivative;
-        break;
+        return sigmoid;
       }
       case EActivationFunction.Tanh: {
-        this.activatorFunc = tanh;
-        this.activatorFuncDerivative = tanhDerivative;
-        break;
+        return tanh;
       }
       case EActivationFunction.RectifiedLinearUnit:
       case EActivationFunction.ReLU: {
-        this.activatorFunc = ReLU;
-        this.activatorFuncDerivative = ReLUDerivative;
-        break;
+        return ReLU;
       }
       case EActivationFunction.LeakyReLU: {
-        this.activatorFunc = LeakyReLU;
-        this.activatorFuncDerivative = LeakyReLUDerivative;
-        break;
+        return LeakyReLU;
       }
       case EActivationFunction.SoftPlus: {
-        this.activatorFunc = Softplus;
-        this.activatorFuncDerivative = SoftplusDerivative;
-        break;
+        return Softplus;
       }
       default:
         // TODO: this case
-        break;
+        // Return default reccomended value :shrug:
+        return ReLU;
     }
+  }
+
+  public static Func<Perceptron, double> getDerivativeFunc(EActivationFunction enumVal) {
+    switch(enumVal) {
+      case EActivationFunction.Sigmoid: {
+        return sigmoidDerivative;
+      }
+      case EActivationFunction.Tanh: {
+        return tanhDerivative;
+      }
+      case EActivationFunction.RectifiedLinearUnit:
+      case EActivationFunction.ReLU: {
+        return ReLUDerivative;
+      }
+      case EActivationFunction.LeakyReLU: {
+        return LeakyReLUDerivative;
+      }
+      case EActivationFunction.SoftPlus: {
+        return SoftplusDerivative;
+      }
+      default:
+        // TODO: this case
+        // Return default reccomended value :shrug:
+        return ReLUDerivative;
+    }
+  }
+
+  public void setActivatorFunc(EActivationFunction targetActivationFunc) {
+    this.activatorFunc = getActivatorFunc(targetActivationFunc);
+    this.activatorFuncDerivative = getDerivativeFunc(targetActivationFunc);
   }
 
   public static double randomWeight() {
