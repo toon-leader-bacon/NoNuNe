@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Threading.Tasks.Dataflow;
+using System.Collections.Generic;
 using System;
 
 
@@ -14,6 +15,7 @@ namespace NoNuNe {
       Console.WriteLine("]");
     }
 
+
     static void Main(string[] args) {
       LayerFactory lf = new LayerFactory();
       lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
@@ -26,29 +28,9 @@ namespace NoNuNe {
       
       Console.WriteLine("hello Nocab");
 
-      // List<double> input = Program.intToBinary(1);
-      // List<double> expectedOutput = Program.intToExpectedOutput(1);
-
-      for(int epoch = 0; epoch < 10000; epoch++) {
-        Console.WriteLine();
-        var inOuts = DataGenerator.genInOut();
-        List<double> output = n.evaluate(inOuts.Item1);
-
-        int maxIndex = -10;
-        double maxConfidence = -1d;
-        for(int i = 0; i < output.Count; i++) {
-          double confidence = output[i];
-          
-          if(confidence > maxConfidence) {
-            maxIndex = i;
-            maxConfidence = confidence;
-          }
-        }
-        Console.WriteLine($"{maxIndex}  confidence: {maxConfidence}");
-
-        n.backprop(inOuts.Item2);
-
-      }
+      List<DataPoint> data = DataGenerator.binary0to9(5000);
+      Gym gym = new Gym();
+      gym.epochTraining(n, data, 50);
       Console.WriteLine("Training done");
     }
   }

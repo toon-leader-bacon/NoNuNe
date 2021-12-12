@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Resources;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +8,43 @@ namespace NoNuNe {
 public static class DataGenerator {
 
   public static NocabRNG rng = new NocabRNG("DataGenerator");
+
+  public static List<DataPoint> binary0to9(int count) {
+    List<DataPoint> result = new List<DataPoint>();
+
+    for(int i = 0; i < count; i++) {
+      int value = rng.generateInt(0, 9, true, true);
+      result.Add( new DataPoint(input:intToBinary(value), 
+                                expectedOutput:intToExpectedOutput(value)));
+    }
+
+    return result;
+  }
+
+  public static List<string> indexToName() {
+    /**
+     * The neural net will return a list of confidence values. The index of the
+     * highest of these confidence values represents the NN's classification.
+     * To convert from an index to a class name, use this list. 
+     *
+     * For example, if the 3rd element (0 indexed) in the Neural Net's output has a high
+     * confidence of 99%, that coresponds to the value "3" in this list. 
+     * So the Neural Net things the input value has the class of "3".
+     */
+    return new List<string>{
+      "0",
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9"
+    };
+  }
+
   public static Tuple<List<double>, List<double>> genInOut() {
     int value = rng.generateInt(0, 9, true, true);
     Console.WriteLine("Generating inOut for value: " + value);

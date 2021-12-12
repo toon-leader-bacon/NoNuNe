@@ -1,8 +1,4 @@
-
-
-using System.Security.Cryptography;
 using System;
-using System.Collections.Generic;
 namespace NoNuNe {
 
 public class Kernel {
