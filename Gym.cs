@@ -7,21 +7,33 @@ namespace NoNuNe {
 
 public class Gym {
   
-  public List<string> outputLookup = new List<string>();
+  public List<string> classNames = new List<string>();
 
   public int printEveryN = 100;  // Print confidence logging every 10 training rounds
 
+  public double percentUsedFortraining = 0.80d;
+
   public Gym() {
-    outputLookup = new List<string>{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    classNames = DataGenerator.indexToName();  // TODO: Make this dynamic
   }
 
   public void epochTraining(Network network, List<DataPoint> trainingData, int epochs) {
+    NocabRNG rng = new NocabRNG(trainingData);
+    List<DataPoint> shuffledTrainingData = (List<DataPoint>)rng.shuffleNewList<DataPoint>(trainingData);
+
+    int trainingCount = (int)(shuffledTrainingData.Count * percentUsedFortraining);
+    int testingCount = shuffledTrainingData.Count - trainingCount;
+    List<DataPoint> _trainingData = shuffledTrainingData.GetRange(0, trainingCount);
+    List<DataPoint> _testingData = shuffledTrainingData.GetRange(trainingCount, testingCount);
+
     for(int i = 0; i < epochs; i++) {
       this.train(network, trainingData);
     }
+
+    // TODO: Testing
   }
 
-  public void train(Network network, List<DataPoint> trainingData) {
+  private void train(Network network, List<DataPoint> trainingData) {
     for (int rep = 0; rep < trainingData.Count; rep++) {
       DataPoint dp = trainingData[rep];
       List<Double> actualOutput = network.evaluate(dp.input);
@@ -48,8 +60,8 @@ public class Gym {
     }
     
     string indexName = $"Invalid index {maxIndex}";
-    if (maxIndex < outputLookup.Count) {
-      indexName = outputLookup[maxIndex];
+    if (maxIndex < classNames.Count) {
+      indexName = classNames[maxIndex];
     }
     Console.WriteLine($"Value '{indexName}' has highest confidence of '{highestConfidence}'");
   }
