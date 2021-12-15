@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace NoNuNe {
   
@@ -7,10 +8,20 @@ public class PerceptronFactory {
   public enum EActivationFunction {
     Sigmoid,
     Tanh,
-    ReLU, RectifiedLinearUnit,
+    ReLU, RectifiedLinearUnit,  // Identical
     LeakyReLU,
     SoftPlus
   };
+
+  public enum ECostFunction {
+    // Recommended for Regression
+    Linear,
+    Quadratic, MeanSquaredError,  // Identical
+
+    // Recommended for Classification 
+    CrossEntropy,
+    HingeLoss
+  }
 
   public static NocabRNG rng = NocabRNG.newRNG;
 
@@ -86,6 +97,20 @@ public class PerceptronFactory {
   public void setActivatorFunc(EActivationFunction targetActivationFunc) {
     this.activatorFunc = getActivatorFunc(targetActivationFunc);
     this.activatorFuncDerivative = getDerivativeFunc(targetActivationFunc);
+  }
+
+  public static Func<double, double, double> getCostFunc(ECostFunction enumVal) {
+    switch(enumVal) {
+      case ECostFunction.Linear: { return LinearCost; }
+      case ECostFunction.Quadratic:
+      case ECostFunction.MeanSquaredError: { return QuadraticCost; }
+
+      case ECostFunction.CrossEntropy: { return CrossEntropyCost; }
+      case ECostFunction.HingeLoss: { return HingeLossCost; }
+
+      default:
+        return CrossEntropyCost;
+    }
   }
 
   public static double randomWeight() {
@@ -178,6 +203,66 @@ public class PerceptronFactory {
   }
 
 #endregion Perceptron Functions
+
+#region Cost Calculation Functions
+
+  private static double LinearCost(double estimate, double label) {
+    return label - estimate;
+  }
+
+  private static double QuadraticCost(double estimate, double label) {
+    // Mean Squared Error for a single output layer perceptron
+    return (label - estimate) * (label - estimate);
+  }
+
+  private static double CrossEntropyCost(double estimate, double label) {
+    return -1d * (
+      (label * Math.Log(estimate)) + 
+      ((1d - label) * Math.Log(1d - estimate)));
+  }
+
+  private static double HingeLossCost(double estimate, double label) {
+    return Math.Max(0, 1 - (label * estimate));
+  }
+
+  private static double QuadraticCost(List<Double> estimate, List<Double> label) {
+    /**
+     * Mean Squared error
+     * return (1/n)*Sum((estimate[i] - label[i])^2)
+     * 
+     * TODO: Not sure what to do if the two arrays are different sized...
+     */
+    double result = 0d;
+
+    int minCount = Math.Min(estimate.Count, label.Count);
+    for(int i = 0; i < minCount; i++ ) {
+      double estimateI = estimate[i];
+      double labelI = label[i];
+
+      result += (labelI - estimateI) * (labelI - estimateI);
+    }
+
+    return result / minCount;
+  }
+
+  private static double CrossEntropyCost(List<Double> estimate, List<Double> label) {
+    /**
+     * TODO: Not sure what to do if the two arrays are different sized...
+     */
+    double result = 0d;
+    int minCount = Math.Min(estimate.Count, label.Count);
+    for(int i = 0; i < minCount; i++) {
+      double estimateI = estimate[i];
+      double labelI = label[i];
+
+      result += (labelI * Math.Log(estimateI)) + 
+                ((1 - labelI) * Math.Log(1 - estimateI));
+    }
+
+    return result / -minCount;
+  }
+
+#endregion Cost Calculation Functions 
 
 }
 }

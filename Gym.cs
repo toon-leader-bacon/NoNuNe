@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using System.Xml;
 using System.Data;
 using System;
@@ -27,7 +28,7 @@ public class Gym {
     List<DataPoint> _testingData = shuffledTrainingData.GetRange(trainingCount, testingCount);
 
     for(int i = 0; i < epochs; i++) {
-      this.train(network, trainingData);
+      this.train(network, _trainingData);
     }
 
     // TODO: Testing
@@ -45,6 +46,13 @@ public class Gym {
       }
 
       network.backprop(dp.expectedOutput);
+    }
+  }
+
+  private void test(Network network, List<DataPoint> testingData) {
+    foreach(DataPoint dp in testingData) {
+      List<Double> actualOutput = network.evaluate(dp.input);
+
     }
   }
 
