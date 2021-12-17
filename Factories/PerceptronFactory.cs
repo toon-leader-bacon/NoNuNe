@@ -10,7 +10,10 @@ public class PerceptronFactory {
     Tanh,
     ReLU, RectifiedLinearUnit,  // Identical
     LeakyReLU,
-    SoftPlus
+    SoftPlus,
+
+    // To represent empty enum value
+    NONE
   };
 
   public enum ECostFunction {
@@ -20,31 +23,28 @@ public class PerceptronFactory {
 
     // Recommended for Classification 
     CrossEntropy,
-    HingeLoss
+    HingeLoss,
+
+    // To represent empty enum value
+    NONE
   }
 
   public static NocabRNG rng = NocabRNG.newRNG;
 
   public static bool gausianWeight = false;
 
-  private Func<double, double> activatorFunc = ReLU;
-
-  private Func<Perceptron, double> activatorFuncDerivative = ReLUDerivative;
-
-  private Func<double, double, double> costFunction = CrossEntropyCost;
+  private EActivationFunction activatorFuncEnum = EActivationFunction.ReLU;
+  private ECostFunction costFuncEnum = ECostFunction.Linear;
 
   public Perceptron buildPerceptron(int layerId = 0, 
                                     int perceptronId = 0,
-                                    Func<double, double> activatorFunc = null,
-                                    Func<Perceptron, double> activatorFuncDerivative = null,
-                                    Func<double, double, double> costFunction = null) {
-      var af = (activatorFunc == null) ? this.activatorFunc : activatorFunc;
-      var afd = (activatorFuncDerivative == null) ? this.activatorFuncDerivative : activatorFuncDerivative;
-      var cf = (costFunction == null) ? this.costFunction : costFunction;
+                                    EActivationFunction activatorFuncEnum = EActivationFunction.NONE,
+                                    ECostFunction costFuncEnum = ECostFunction.NONE) {
+      EActivationFunction af = (activatorFuncEnum == EActivationFunction.NONE) ? this.activatorFuncEnum: activatorFuncEnum;
+      ECostFunction cf = (costFuncEnum == ECostFunction.NONE) ? (this.costFuncEnum) : (costFuncEnum);
       return new Perceptron(
         initialThreshold: randomWeight(),
-        activatorFunc: af,
-        activatorFuncDerivative: afd,
+        activationEnum: af,
         costFunction: cf
       );
   }
@@ -100,8 +100,7 @@ public class PerceptronFactory {
   }
 
   public void setActivatorFunc(EActivationFunction targetActivationFunc) {
-    this.activatorFunc = getActivatorFunc(targetActivationFunc);
-    this.activatorFuncDerivative = getDerivativeFunc(targetActivationFunc);
+    this.activatorFuncEnum = targetActivationFunc;
   }
 
   public static Func<double, double, double> getCostFunc(ECostFunction enumVal) {
@@ -119,7 +118,7 @@ public class PerceptronFactory {
   }
 
   public void setCostFunction(ECostFunction targetCostFunction) {
-    this.costFunction = getCostFunc(targetCostFunction);
+    this.costFuncEnum = targetCostFunction;
   }
 
   public static double randomWeight() {
