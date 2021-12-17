@@ -41,7 +41,6 @@ public class Perceptron : JsonConvertible {
 
   private PerceptronFactory.EActivationFunction activatorTypeEnum;
 
-
   /**
    * The Activator Function is used to convert the net value to 
    * the output value.
@@ -58,6 +57,9 @@ public class Perceptron : JsonConvertible {
    * propagation. 
    */
   private Func<Perceptron, double> activatorFuncDerivative;
+
+  private PerceptronFactory.ECostFunction costTypeEnum;
+  private Func<double, double, double> costFunc;
 
 
   /**
@@ -106,18 +108,31 @@ public class Perceptron : JsonConvertible {
    */
   private double lowercaseDelta;
 
-  public Perceptron(double initialThreshold,
-                    Func<double, double> activatorFunc,
-                    Func<Perceptron, double> activatorFuncDerivative) {
-    this._threshold = initialThreshold;
-    this.activatorFunc = activatorFunc;
-    this.activatorFuncDerivative = activatorFuncDerivative;
+  // public Perceptron(double initialThreshold,
+  //                   Func<double, double> activatorFunc,
+  //                   Func<Perceptron, double> activatorFuncDerivative,
+  //                   Func<double, double, double> costFunction) {
+  //   this._threshold = initialThreshold;
+  //   this.activatorFunc = activatorFunc;
+  //   this.activatorFuncDerivative = activatorFuncDerivative;
 
-    // The weights will be populated "just in time" in the _evaluate() function
-    // using the PerceptronFactory.randomWeight() function
-    // Because the perceptron doesn't know how many inputs it's getting from
-    // the layer before it. 
-    this._currentWeights = new List<double>();
+  //   // The weights will be populated "just in time" in the _evaluate() function
+  //   // using the PerceptronFactory.randomWeight() function
+  //   // Because the perceptron doesn't know how many inputs it's getting from
+  //   // the layer before it. 
+  //   this._currentWeights = new List<double>();
+  // }
+
+  public Perceptron(double initialThreshold,
+                    PerceptronFactory.EActivationFunction activationEnum,
+                    PerceptronFactory.ECostFunction costFunction) {
+    this._threshold = initialThreshold;
+    this.activatorTypeEnum = activationEnum;
+    this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
+    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+
+    this.costTypeEnum = costFunction;
+    this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
   }
 
   public Perceptron(JsonObject jo) {
@@ -357,6 +372,7 @@ public class Perceptron : JsonConvertible {
     }
     result["CurrentWeights"] = curWeights;
     result["ActivatorTypeEnum"] = this.activatorTypeEnum.ToString();
+    result["CostTypeEnum"] = this.costTypeEnum.ToString();
 
     result["Threshold"] = this.Threshold;
     result["LearningRate"] = this.learningRate;
@@ -377,16 +393,20 @@ public class Perceptron : JsonConvertible {
 
     this._newWeights = new List<double>();
 
+    // Activator functions
     PerceptronFactory.EActivationFunction newActivatorTypeEnum;
-    bool enumParseSucess = Enum.TryParse<PerceptronFactory.EActivationFunction>(jo["ActivatorTypeEnum"].AsString, out newActivatorTypeEnum);
-    if (enumParseSucess) {
-      this.activatorTypeEnum = newActivatorTypeEnum;
-    } else {
-      // Malformed enum string use default
-      this.activatorTypeEnum = PerceptronFactory.EActivationFunction.ReLU;
-    }
+    bool enumParseSuccess = Enum.TryParse<PerceptronFactory.EActivationFunction>(jo["ActivatorTypeEnum"].AsString, out newActivatorTypeEnum);
+    // If parse fails, default is ReLU
+    this.activatorTypeEnum = (enumParseSuccess) ? newActivatorTypeEnum : PerceptronFactory.EActivationFunction.ReLU;
     this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
     this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+
+    // Cost function
+    PerceptronFactory.ECostFunction newCostTypeEnum;
+    enumParseSuccess = Enum.TryParse<PerceptronFactory.ECostFunction>(jo["CostTypeEnum"].AsString, out newCostTypeEnum);
+    // If parsing fails, default is Cross Entropy :shrug:
+    this.costTypeEnum = (enumParseSuccess) ? (newCostTypeEnum) : (PerceptronFactory.ECostFunction.CrossEntropy); 
+    this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
 
     this._threshold = jo["Threshold"];
     this.learningRate = jo["LearningRate"];
