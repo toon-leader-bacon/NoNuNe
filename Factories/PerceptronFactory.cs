@@ -31,16 +31,21 @@ public class PerceptronFactory {
 
   private Func<Perceptron, double> activatorFuncDerivative = ReLUDerivative;
 
+  private Func<double, double, double> costFunction = CrossEntropyCost;
+
   public Perceptron buildPerceptron(int layerId = 0, 
                                     int perceptronId = 0,
                                     Func<double, double> activatorFunc = null,
-                                    Func<Perceptron, double> activatorFuncDerivative = null) {
+                                    Func<Perceptron, double> activatorFuncDerivative = null,
+                                    Func<double, double, double> costFunction = null) {
       var af = (activatorFunc == null) ? this.activatorFunc : activatorFunc;
       var afd = (activatorFuncDerivative == null) ? this.activatorFuncDerivative : activatorFuncDerivative;
+      var cf = (costFunction == null) ? this.costFunction : costFunction;
       return new Perceptron(
         initialThreshold: randomWeight(),
         activatorFunc: af,
-        activatorFuncDerivative: afd
+        activatorFuncDerivative: afd,
+        costFunction: cf
       );
   }
 
@@ -111,6 +116,10 @@ public class PerceptronFactory {
       default:
         return CrossEntropyCost;
     }
+  }
+
+  public void setCostFunction(ECostFunction targetCostFunction) {
+    this.costFunction = getCostFunc(targetCostFunction);
   }
 
   public static double randomWeight() {
