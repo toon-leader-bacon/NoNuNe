@@ -95,7 +95,7 @@ public class Perceptron : JsonConvertible {
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.1, 0.01]
    */
-  private double learningRate = 0.05d;
+  private double learningRate = 0.005d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 

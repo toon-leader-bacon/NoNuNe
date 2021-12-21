@@ -54,6 +54,7 @@ public class Gym {
     PerceptronFactory.ECostFunction cf = PerceptronFactory.ECostFunction.CrossEntropy;
 
     double maxErrorSoFar = Double.NegativeInfinity;
+    double totalError = 0d;
 
     for(int rep = 0; rep < testingData.Count; rep++) {
       DataPoint dp = testingData[rep]; 
@@ -62,11 +63,15 @@ public class Gym {
       double error = PerceptronFactory.calculateError(networkOutput, expectedOutput, cf);
 
       maxErrorSoFar = Math.Max(maxErrorSoFar, error);
+      totalError += error;
+
       Console.WriteLine($"Rep count: {rep}");
       Console.WriteLine($"Output error: '{error}'");
     }
 
+    double averageError = totalError / testingData.Count;
     Console.WriteLine($"Maximum Error found: {maxErrorSoFar}");
+    Console.WriteLine($"Average Error found: {averageError}");
   }
 
   public void PrintHighestConfidence(List<double> confidenceOutput) {

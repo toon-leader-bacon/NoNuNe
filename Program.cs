@@ -19,6 +19,7 @@ namespace NoNuNe {
     static void Main(string[] args) {
       LayerFactory lf = new LayerFactory();
       lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
+      lf.setCostFunction(PerceptronFactory.ECostFunction.HingeLoss);
 
       Network n = new Network(0);
       n.appendLayer(lf.buildLayer(layerId: 0, size: 4, perceptronActivation: PerceptronFactory.EActivationFunction.ReLU)); // Input layer
@@ -30,7 +31,7 @@ namespace NoNuNe {
 
       List<DataPoint> data = DataGenerator.binary0to9(5000);
       Gym gym = new Gym();
-      gym.epochTraining(n, data, 50);
+      gym.epochTraining(n, data, 200);
       Console.WriteLine("Training done");
     }
   }
