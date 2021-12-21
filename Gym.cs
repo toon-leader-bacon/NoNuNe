@@ -10,9 +10,9 @@ public class Gym {
   
   public List<string> classNames = new List<string>();
 
-  public int printEveryN = 100;  // Print confidence logging every 10 training rounds
+  public int printEveryN = 1000;  // Print confidence logging every 10 training rounds
 
-  public double percentUsedFortraining = 0.80d;
+  public double percentUsedFortraining = 0.90d;
 
   public Gym() {
     classNames = DataGenerator.indexToName();  // TODO: Make this dynamic
@@ -31,9 +31,7 @@ public class Gym {
       this.train(network, _trainingData);
     }
 
-    for(int i = 0; i < _testingData.Count; i++) {
-      this.test(network, _testingData);
-    }
+    this.test(network, _testingData);
   }
 
   private void train(Network network, List<DataPoint> trainingData) {
@@ -55,14 +53,20 @@ public class Gym {
   private void test(Network network, List<DataPoint> testingData) {
     PerceptronFactory.ECostFunction cf = PerceptronFactory.ECostFunction.CrossEntropy;
 
-    foreach(DataPoint dp in testingData) {
+    double maxErrorSoFar = Double.NegativeInfinity;
+
+    for(int rep = 0; rep < testingData.Count; rep++) {
+      DataPoint dp = testingData[rep]; 
       List<Double> networkOutput = network.evaluate(dp.input);
       List<Double> expectedOutput = dp.expectedOutput;
-
-      
       double error = PerceptronFactory.calculateError(networkOutput, expectedOutput, cf);
+
+      maxErrorSoFar = Math.Max(maxErrorSoFar, error);
+      Console.WriteLine($"Rep count: {rep}");
       Console.WriteLine($"Output error: '{error}'");
     }
+
+    Console.WriteLine($"Maximum Error found: {maxErrorSoFar}");
   }
 
   public void PrintHighestConfidence(List<double> confidenceOutput) {
