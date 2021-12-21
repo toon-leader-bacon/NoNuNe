@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.Collections.Generic;
 
@@ -233,41 +234,22 @@ public class PerceptronFactory {
     return Math.Max(0, 1 - (label * estimate));
   }
 
-  private static double QuadraticCost(List<Double> estimate, List<Double> label) {
-    /**
-     * Mean Squared error
-     * return (1/n)*Sum((estimate[i] - label[i])^2)
-     * 
-     * TODO: Not sure what to do if the two arrays are different sized...
-     */
-    double result = 0d;
-
-    int minCount = Math.Min(estimate.Count, label.Count);
-    for(int i = 0; i < minCount; i++ ) {
-      double estimateI = estimate[i];
-      double labelI = label[i];
-
-      result += (labelI - estimateI) * (labelI - estimateI);
-    }
-
-    return result / minCount;
-  }
-
-  private static double CrossEntropyCost(List<Double> estimate, List<Double> label) {
-    /**
+  public static double calculateError(List<Double> estimate, List<Double> label, ECostFunction costType) {
+        /**
      * TODO: Not sure what to do if the two arrays are different sized...
      */
     double result = 0d;
     int minCount = Math.Min(estimate.Count, label.Count);
+
+    Func<double, double, double> cf = getCostFunc(costType);
     for(int i = 0; i < minCount; i++) {
       double estimateI = estimate[i];
       double labelI = label[i];
 
-      result += (labelI * Math.Log(estimateI)) + 
-                ((1 - labelI) * Math.Log(1 - estimateI));
+      result += cf(estimateI, labelI);
     }
 
-    return result / -minCount;
+    return result / minCount;
   }
 
 #endregion Cost Calculation Functions 

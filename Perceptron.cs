@@ -28,7 +28,7 @@ public class Perceptron : JsonConvertible {
    * in the activationValue(...) function.
    * net = [inputs] * [currentWeights] - threshold
    */
-  private List<double> _currentWeights;
+  private List<double> _currentWeights = new List<double>();
 
   /**
    * The new weights this perceptron should have once 
@@ -36,7 +36,7 @@ public class Perceptron : JsonConvertible {
    * the end of backprop because other layers need the "old"
    * weights as part of their backprop calculations.
    */
-  private List<double> _newWeights;
+  private List<double> _newWeights = new List<double>();
 
 
   private PerceptronFactory.EActivationFunction activatorTypeEnum;

@@ -31,12 +31,15 @@ public class Gym {
       this.train(network, _trainingData);
     }
 
-    // TODO: Testing
+    for(int i = 0; i < _testingData.Count; i++) {
+      this.test(network, _testingData);
+    }
   }
 
   private void train(Network network, List<DataPoint> trainingData) {
     for (int rep = 0; rep < trainingData.Count; rep++) {
       DataPoint dp = trainingData[rep];
+      Console.WriteLine(dp.input);
       List<Double> actualOutput = network.evaluate(dp.input);
 
       if(rep % printEveryN == 0) {
@@ -50,9 +53,15 @@ public class Gym {
   }
 
   private void test(Network network, List<DataPoint> testingData) {
-    foreach(DataPoint dp in testingData) {
-      List<Double> actualOutput = network.evaluate(dp.input);
+    PerceptronFactory.ECostFunction cf = PerceptronFactory.ECostFunction.CrossEntropy;
 
+    foreach(DataPoint dp in testingData) {
+      List<Double> networkOutput = network.evaluate(dp.input);
+      List<Double> expectedOutput = dp.expectedOutput;
+
+      
+      double error = PerceptronFactory.calculateError(networkOutput, expectedOutput, cf);
+      Console.WriteLine($"Output error: '{error}'");
     }
   }
 
