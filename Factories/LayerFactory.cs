@@ -8,9 +8,21 @@ public class LayerFactory : PerceptronFactory{
     return this.buildLayer(layerId: layerId, size: size, EActivationFunction.Sigmoid);
   }
 
+
   public Layer buildLayer(int layerId,
                           int size,
                           EActivationFunction perceptronActivation) {
+    return this.buildLayer(
+      layerId: layerId, 
+      size: size, 
+      perceptronActivation: perceptronActivation, 
+      costFunction: ECostFunction.Linear);  // Default
+  }
+
+  public Layer buildLayer(int layerId,
+                          int size,
+                          EActivationFunction perceptronActivation, 
+                          ECostFunction costFunction) {
     Layer result = new Layer();
     result.LayerId = layerId;
     
