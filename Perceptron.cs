@@ -1,5 +1,3 @@
-
-using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using LightJson;
@@ -28,7 +26,7 @@ public class Perceptron : JsonConvertible {
    * in the activationValue(...) function.
    * net = [inputs] * [currentWeights] - threshold
    */
-  private List<double> _currentWeights = new List<double>();
+  public List<double> _currentWeights = new List<double>();
 
   /**
    * The new weights this perceptron should have once 
@@ -62,7 +60,7 @@ public class Perceptron : JsonConvertible {
    * The Activator Function's Derivative is used during back 
    * propagation. 
    */
-  private Func<Perceptron, double> _activatorFuncDerivative;
+  public Func<Perceptron, double> _activatorFuncDerivative;
 
   /**
    * The cost function is used during back propagation when calculating
@@ -71,7 +69,7 @@ public class Perceptron : JsonConvertible {
    * In other words, used to calculate dETotal over dOutput
    * To be explicit, this Func is used in the output_dETot_over_dOut(...)
    */
-  private Func<double, double, double> _costFunc;
+  public Func<double, double, double> _costFunc;
 
 
   /**
@@ -361,7 +359,7 @@ public class Perceptron : JsonConvertible {
     this._threshold = this._threshold - (this.learningRate * lowercaseDelta);
   }
 
-#endregion
+#endregion Backprop
 
 #region JsonConvertable
 
