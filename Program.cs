@@ -25,7 +25,7 @@ namespace NoNuNe {
       n.appendLayer(lf.buildLayer(layerId: 0, size: 4, perceptronActivation: PerceptronFactory.EActivationFunction.ReLU)); // Input layer
       n.appendLayer(lf.buildLayer(1, 32, PerceptronFactory.EActivationFunction.LeakyReLU));
       n.appendLayer(lf.buildLayer(2, 16, PerceptronFactory.EActivationFunction.ReLU));
-      n.appendLayer(lf.buildLayer(3, 10, PerceptronFactory.EActivationFunction.Sigmoid, PerceptronFactory.ECostFunction.Linear)); // Output layer
+      n.appendLayer(lf.buildLayer(4, 10, PerceptronFactory.EActivationFunction.Sigmoid, PerceptronFactory.ECostFunction.Linear)); // Output layer
       
       Console.WriteLine("hello Nocab");
 
