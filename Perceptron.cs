@@ -76,7 +76,7 @@ public class Perceptron : JsonConvertible {
 
   /**
    * The Threshold is a POSITIVE value that represents the
-   * perceptron's base reluctance to activate itself. This value
+   * perceptrons base reluctance to activate itself. This value
    * SHOULD always be positive. Some textbooks prefer to use 
    * the term Bias instead of Threshold. Bias = -Threshold
    */
@@ -209,7 +209,6 @@ public class Perceptron : JsonConvertible {
     // NOCAB TODO: pass in a struct object into the cost func so you can provide paramater 
     // names. The problem is it's confusing label then recent output? Or output then label?
     // A data struct would remove this issue.
-
     return  this._costFunc(expectedOutput, this.recentOutput);
   }
 
@@ -347,18 +346,6 @@ public class Perceptron : JsonConvertible {
 
   public void applyUpdateWeights() {
     this._currentWeights = this._newWeights;
-    // this.updateThreshold(this.lowercaseDelta);
-  }
-
-  public void updateThreshold(double lowercaseDelta) {
-    /**
-     * Given the lowercase delta (IE dTotError / dNet) then update this perception's
-     * Threshold value 
-     * 
-     * I am about 80% sure I got my negative sign correct here. It gets confusing
-     * between bias vs threshold. 
-     */
-    this._threshold = this._threshold - (this.learningRate * lowercaseDelta);
   }
 
 #endregion

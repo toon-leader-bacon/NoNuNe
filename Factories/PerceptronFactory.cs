@@ -1,3 +1,4 @@
+using System.Globalization;
 using System;
 using System.Collections.Generic;
 
@@ -43,8 +44,7 @@ public class PerceptronFactory {
       EActivationFunction af = (activatorFuncEnum == EActivationFunction.NONE) ? this.activatorFuncEnum: activatorFuncEnum;
       ECostFunction cf = (costFuncEnum == ECostFunction.NONE) ? (this.costFuncEnum) : (costFuncEnum);
       return new Perceptron(
-        // initialThreshold: PerceptronFactory._gaussianWeight(mean: 0.5f, sd: 0.25f, min: 0f, max: 1f),
-        initialThreshold: 0.5f,
+        initialThreshold: randomWeight(),
         activationEnum: af,
         costFunction: cf
       );
@@ -123,33 +123,20 @@ public class PerceptronFactory {
   }
 
   public static double randomWeight() {
-    return gausianWeight ? 
-      _gaussianWeight(mean: 0d, sd: 0.5, min: -1d, max: 1d) : 
-      _randomWeight(min: -1f, max: 1f);
+    return gausianWeight ? _gaussianWeight() : _randomWeight();
   }
 
-  private static double _randomWeight(double min = -1f, double max = 1f) {
-    return PerceptronFactory.rng.generateDouble(min, max, true, true);
+  private static double _randomWeight() {
+    return PerceptronFactory.rng.generateDouble(-1f, 1f, true, true);
   }
 
-  private static double _gaussianWeight(double mean = 0d, 
-                                        double sd = 0.5d, 
-                                        double min = double.NegativeInfinity, 
-                                        double max = double.PositiveInfinity) {
-    double x = PerceptronFactory.rng.generateDouble(mean - sd, mean + sd);
-    double left = (1f / (sd *  Math.Sqrt(2f * Math.PI)));
-    double right = Math.Pow(Math.E, -(((x - mean) * (x - mean)) / (2d * sd * sd)));
-    double result = NocabMathUtility.clamp(left * right, min, max);
-    return result;
+  private static double _gaussianWeight() {
+    double theta = 2 * Math.PI * PerceptronFactory.rng.generateDouble(0, 1);
+    double rho = Math.Sqrt(-2 * Math.Log(1 - PerceptronFactory.rng.generateDouble(0, 1)));
+    double scale = 0.5f * rho;
+    double result = scale * Math.Cos(theta);
+    return NocabMathUtility.clamp(result, -1, 1);
   }
-
-  // private static double _gaussianWeight() {
-  //   double theta = 2 * Math.PI * PerceptronFactory.rng.generateDouble(0, 1);
-  //   double rho = Math.Sqrt(-2 * Math.Log(1 - PerceptronFactory.rng.generateDouble(0, 1)));
-  //   double scale = 0.5f * rho;
-  //   double result = scale * Math.Cos(theta);
-  //   return NocabMathUtility.clamp(result, -1, 1);
-  // }
 
 #region Perceptron Functions
 
@@ -202,14 +189,14 @@ public class PerceptronFactory {
 
   public static double LeakyReLU(double z) {
     if (z < 0) {
-      return 0.05 * z; // TODO: make the slope here variable in some way
+      return 0.01 * z; // TODO: make the slope here variable in some way
     }
     return z;
   }
 
   public static double LeakyReLUDerivative(Perceptron p) {
 
-    if (p.recentOutput < 0d) { return 0.05d; }
+    if (p.recentOutput < 0d) { return 0.01d; }
     return 1d;
   }
 
