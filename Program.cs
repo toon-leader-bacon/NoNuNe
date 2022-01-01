@@ -19,19 +19,19 @@ namespace NoNuNe {
     static void Main(string[] args) {
       LayerFactory lf = new LayerFactory();
       lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
-      lf.setCostFunction(PerceptronFactory.ECostFunction.Linear);
+      lf.setCostFunction(PerceptronFactory.ECostFunction.HingeLoss);
 
       Network n = new Network(0);
       n.appendLayer(lf.buildLayer(layerId: 0, size: 4, perceptronActivation: PerceptronFactory.EActivationFunction.ReLU)); // Input layer
       n.appendLayer(lf.buildLayer(1, 32, PerceptronFactory.EActivationFunction.LeakyReLU));
       n.appendLayer(lf.buildLayer(2, 16, PerceptronFactory.EActivationFunction.ReLU));
-      n.appendLayer(lf.buildLayer(3, 10, PerceptronFactory.EActivationFunction.Sigmoid, PerceptronFactory.ECostFunction.Linear)); // Output layer
+      n.appendLayer(lf.buildLayer(3, 10, PerceptronFactory.EActivationFunction.Sigmoid)); // Output layer
       
       Console.WriteLine("hello Nocab");
 
-      List<DataPoint> data = DataGenerator.binary0to9((int)Math.Pow(10, 5));
+      List<DataPoint> data = DataGenerator.binary0to9(5000);
       Gym gym = new Gym();
-      gym.epochTraining(n, data, 10);
+      gym.epochTraining(n, data, 200);
       Console.WriteLine("Training done");
     }
   }

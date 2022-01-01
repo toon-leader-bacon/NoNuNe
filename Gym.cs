@@ -10,9 +10,9 @@ public class Gym {
   
   public List<string> classNames = new List<string>();
 
-  public int printEveryN = 999;  // Print confidence logging every 10 training rounds
+  public int printEveryN = 1000;  // Print confidence logging every 10 training rounds
 
-  public double percentUsedFortraining = 0.80d;
+  public double percentUsedFortraining = 0.90d;
 
   public Gym() {
     classNames = DataGenerator.indexToName();  // TODO: Make this dynamic
@@ -37,6 +37,7 @@ public class Gym {
   private void train(Network network, List<DataPoint> trainingData) {
     for (int rep = 0; rep < trainingData.Count; rep++) {
       DataPoint dp = trainingData[rep];
+      Console.WriteLine(dp.input);
       List<Double> actualOutput = network.evaluate(dp.input);
 
       if(rep % printEveryN == 0) {
@@ -63,12 +64,14 @@ public class Gym {
 
       maxErrorSoFar = Math.Max(maxErrorSoFar, error);
       totalError += error;
+
+      Console.WriteLine($"Rep count: {rep}");
+      Console.WriteLine($"Output error: '{error}'");
     }
 
     double averageError = totalError / testingData.Count;
     Console.WriteLine($"Maximum Error found: {maxErrorSoFar}");
     Console.WriteLine($"Average Error found: {averageError}");
-    Console.WriteLine("\n\n");
   }
 
   public void PrintHighestConfidence(List<double> confidenceOutput) {

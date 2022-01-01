@@ -38,14 +38,8 @@ public class Perceptron : JsonConvertible {
    */
   private List<double> _newWeights = new List<double>();
 
-  // What type of non-linear function should this perceptron
-  // use during forward evaluation (and the associated derivative 
-  // during back propagation)
-  private PerceptronFactory.EActivationFunction activatorTypeEnum;
 
-  // What type of cost function should be used when calculating
-  // derivative during back propagation
-  private PerceptronFactory.ECostFunction costTypeEnum;
+  private PerceptronFactory.EActivationFunction activatorTypeEnum;
 
   /**
    * The Activator Function is used to convert the net value to 
@@ -56,22 +50,16 @@ public class Perceptron : JsonConvertible {
    * output = activatorFunc(net) 
    *        = activatorFunc([inputs] * [currentWeights] - threshold)
    */
-  private Func<double, double> _activatorFunc;
+  private Func<double, double> activatorFunc;
 
   /**
    * The Activator Function's Derivative is used during back 
    * propagation. 
    */
-  private Func<Perceptron, double> _activatorFuncDerivative;
+  private Func<Perceptron, double> activatorFuncDerivative;
 
-  /**
-   * The cost function is used during back propagation when calculating
-   * the derivative of the total error with respect to the output value
-   * from this perceptron. 
-   * In other words, used to calculate dETotal over dOutput
-   * To be explicit, this Func is used in the output_dETot_over_dOut(...)
-   */
-  private Func<double, double, double> _costFunc;
+  private PerceptronFactory.ECostFunction costTypeEnum;
+  private Func<double, double, double> costFunc;
 
 
   /**
@@ -107,7 +95,7 @@ public class Perceptron : JsonConvertible {
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.1, 0.01]
    */
-  private double learningRate = 0.01d;
+  private double learningRate = 0.005d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 
@@ -120,16 +108,31 @@ public class Perceptron : JsonConvertible {
    */
   private double lowercaseDelta;
 
+  // public Perceptron(double initialThreshold,
+  //                   Func<double, double> activatorFunc,
+  //                   Func<Perceptron, double> activatorFuncDerivative,
+  //                   Func<double, double, double> costFunction) {
+  //   this._threshold = initialThreshold;
+  //   this.activatorFunc = activatorFunc;
+  //   this.activatorFuncDerivative = activatorFuncDerivative;
+
+  //   // The weights will be populated "just in time" in the _evaluate() function
+  //   // using the PerceptronFactory.randomWeight() function
+  //   // Because the perceptron doesn't know how many inputs it's getting from
+  //   // the layer before it. 
+  //   this._currentWeights = new List<double>();
+  // }
+
   public Perceptron(double initialThreshold,
                     PerceptronFactory.EActivationFunction activationEnum,
                     PerceptronFactory.ECostFunction costFunction) {
     this._threshold = initialThreshold;
     this.activatorTypeEnum = activationEnum;
-    this._activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
-    this._activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+    this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
+    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
 
     this.costTypeEnum = costFunction;
-    this._costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
+    this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
   }
 
   public Perceptron(JsonObject jo) {
@@ -180,7 +183,7 @@ public class Perceptron : JsonConvertible {
      * z = output of evaluate(xInputs) function
      */
     this._recentNet = this._evaluate(xInputs); 
-    this._recentOutput = this._activatorFunc(this._recentNet);
+    this._recentOutput = this.activatorFunc(this._recentNet);
     return this.recentOutput;
   }
 
@@ -205,11 +208,11 @@ public class Perceptron : JsonConvertible {
      * How far off was this perceptron from being correct.
      * Effectively, the above equation is the derivative of the Total Error function: 
      * ETotal = 0.5 * (expected_output - actual_output)^2
+     * 
+     * TODO: Consider using a different error calculation function? 
+     * TODO: And therefore different derivative here
      */
-    // NOCAB TODO: pass in a struct object into the cost func so you can provide paramater 
-    // names. The problem is it's confusing label then recent output? Or output then label?
-    // A data struct would remove this issue.
-    return  this._costFunc(expectedOutput, this.recentOutput);
+    return this.recentOutput - expectedOutput;
   }
 
   private double dOut_over_dNet() {
@@ -226,7 +229,7 @@ public class Perceptron : JsonConvertible {
      *  a Perceptron. The derivative function itself will have the choice of using
      *  Perceptron.recentNet or Perceptron.recentOutput.
      */
-    return _activatorFuncDerivative(this);
+    return activatorFuncDerivative(this);
   }
 
   private double dNet_over_dWeight(Layer leftLayer, int indexOfWeight) {
@@ -395,15 +398,15 @@ public class Perceptron : JsonConvertible {
     bool enumParseSuccess = Enum.TryParse<PerceptronFactory.EActivationFunction>(jo["ActivatorTypeEnum"].AsString, out newActivatorTypeEnum);
     // If parse fails, default is ReLU
     this.activatorTypeEnum = (enumParseSuccess) ? newActivatorTypeEnum : PerceptronFactory.EActivationFunction.ReLU;
-    this._activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
-    this._activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+    this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
+    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
 
     // Cost function
     PerceptronFactory.ECostFunction newCostTypeEnum;
     enumParseSuccess = Enum.TryParse<PerceptronFactory.ECostFunction>(jo["CostTypeEnum"].AsString, out newCostTypeEnum);
     // If parsing fails, default is Cross Entropy :shrug:
     this.costTypeEnum = (enumParseSuccess) ? (newCostTypeEnum) : (PerceptronFactory.ECostFunction.CrossEntropy); 
-    this._costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
+    this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
 
     this._threshold = jo["Threshold"];
     this.learningRate = jo["LearningRate"];
