@@ -10,7 +10,7 @@ public class Gym {
   
   public List<string> classNames = new List<string>();
 
-  public int printEveryN = 1000;  // Print confidence logging every 10 training rounds
+  public int printEveryN = 999;  // Print confidence logging every 10 training rounds
 
   public double percentUsedFortraining = 0.90d;
 
@@ -37,7 +37,6 @@ public class Gym {
   private void train(Network network, List<DataPoint> trainingData) {
     for (int rep = 0; rep < trainingData.Count; rep++) {
       DataPoint dp = trainingData[rep];
-      Console.WriteLine(dp.input);
       List<Double> actualOutput = network.evaluate(dp.input);
 
       if(rep % printEveryN == 0) {
