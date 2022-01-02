@@ -1,11 +1,12 @@
-
-using System.Diagnostics;
 using System;
 using System.Collections.Generic;
 using LightJson;
 
 namespace NoNuNe {
 public class Perceptron : JsonConvertible {
+
+  // TODO: Should this stay static? 
+  public static MomentumOptimizer optimizer = new MomentumOptimizer();
 
   /**
    * The unique identifier for the layer this perceptron is part of.
@@ -28,7 +29,7 @@ public class Perceptron : JsonConvertible {
    * in the activationValue(...) function.
    * net = [inputs] * [currentWeights] - threshold
    */
-  private List<double> _currentWeights = new List<double>();
+  public List<double> _currentWeights = new List<double>();
 
   /**
    * The new weights this perceptron should have once 
@@ -50,16 +51,16 @@ public class Perceptron : JsonConvertible {
    * output = activatorFunc(net) 
    *        = activatorFunc([inputs] * [currentWeights] - threshold)
    */
-  private Func<double, double> activatorFunc;
+  public Func<double, double> activatorFunc;
 
   /**
    * The Activator Function's Derivative is used during back 
    * propagation. 
    */
-  private Func<Perceptron, double> activatorFuncDerivative;
+  public Func<Perceptron, double> activatorFuncDerivative;
 
   private PerceptronFactory.ECostFunction costTypeEnum;
-  private Func<double, double, double> costFunc;
+  public Func<double, double, double> costFunc;
 
 
   /**
@@ -95,7 +96,7 @@ public class Perceptron : JsonConvertible {
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.1, 0.01]
    */
-  private double learningRate = 0.005d;
+  public double learningRate = 0.005d;
 
   /**
    * A value used during back propagation. It's convenient to calculate 
@@ -189,7 +190,7 @@ public class Perceptron : JsonConvertible {
 
 #region Backprop
 
-  private double getWeight(int perceptronIndex) {
+  public double getWeight(int perceptronIndex) {
     if ((perceptronIndex < 0) || (perceptronIndex >= this._currentWeights.Count)) {
       throw new ArgumentException($"Invalid perceptron id: {perceptronIndex}");
     }
@@ -334,8 +335,9 @@ public class Perceptron : JsonConvertible {
      * The arm and apply are two steps because leftern layers need the "old"
      * weights as part of the backpropagation algorithm. 
      */
-    this.lowercaseDelta = hidden_dETot_over_dOut(rightLayer) * this.dOut_over_dNet();
-    _updateWeights(leftLayer, this.lowercaseDelta);
+    this._newWeights = optimizer.calculateNewWeights(this, leftLayer, rightLayer);
+    // this.lowercaseDelta = hidden_dETot_over_dOut(rightLayer) * this.dOut_over_dNet();
+    // _updateWeights(leftLayer, this.lowercaseDelta);
   }
 
   public void armUpdateWeights(Layer leftLayer, double expectedOutput) {
@@ -343,8 +345,9 @@ public class Perceptron : JsonConvertible {
      * Output layer update weights function. 
      * See _updateWeights(...) for the math.
      */
-    this.lowercaseDelta = this.output_dETot_over_dOut(expectedOutput) * this.dOut_over_dNet();
-    _updateWeights(leftLayer, this.lowercaseDelta);
+    this._newWeights = optimizer.calculateNewWeights(this, leftLayer, expectedOutput);
+    // this.lowercaseDelta = this.output_dETot_over_dOut(expectedOutput) * this.dOut_over_dNet();
+    // _updateWeights(leftLayer, this.lowercaseDelta);
   }
 
   public void applyUpdateWeights() {
@@ -412,8 +415,18 @@ public class Perceptron : JsonConvertible {
     this.learningRate = jo["LearningRate"];
   }
 
+    
 #endregion JsonConvertable
 
-}; // Class Network
+  public override bool Equals(object obj) {
+    return obj is Perceptron perceptron &&
+           LayerId == perceptron.LayerId &&
+           PerceptronId == perceptron.PerceptronId;
+  }
 
+  public override int GetHashCode() {
+    return NocabHashUtility.generateHash(LayerId, PerceptronId);
+  }
+
+}
 } // Namespace NoNuNe

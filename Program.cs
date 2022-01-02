@@ -31,7 +31,7 @@ namespace NoNuNe {
 
       List<DataPoint> data = DataGenerator.binary0to9(5000);
       Gym gym = new Gym();
-      gym.epochTraining(n, data, 200);
+      gym.epochTraining(n, data, 5);
       Console.WriteLine("Training done");
     }
   }
