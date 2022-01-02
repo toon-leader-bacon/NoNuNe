@@ -1,6 +1,3 @@
-using System.Reflection.Emit;
-using System.Xml;
-using System.Data;
 using System;
 using System.Collections.Generic;
 
@@ -64,8 +61,6 @@ public class Gym {
       maxErrorSoFar = Math.Max(maxErrorSoFar, error);
       totalError += error;
 
-      Console.WriteLine($"Rep count: {rep}");
-      Console.WriteLine($"Output error: '{error}'");
     }
 
     double averageError = totalError / testingData.Count;

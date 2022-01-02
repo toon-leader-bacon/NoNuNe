@@ -7,13 +7,15 @@ namespace NoNuNe {
 public class MomentumOptimizer {
 
   public WeightDeltaMatrix weightDeltaLookup;
-  public double momentumInfluence = 0.2d;
+  public double momentumInfluence = 0.4d;
+  public double gradientDescentInfluence;
 
   // Used during hidden layer backpropogation 
   private Dictionary<Perceptron, double> lowercaseDeltaLookup = new Dictionary<Perceptron, double>();
 
-  public MomentumOptimizer(int historyLength = 5) {
+  public MomentumOptimizer(int historyLength = 10) {
     this.weightDeltaLookup = new WeightDeltaMatrix(historyLength);
+    gradientDescentInfluence = 1d - momentumInfluence;
   }
 
 #region Backprop
@@ -150,7 +152,7 @@ public class MomentumOptimizer {
       weightDeltaLookup.appendWeightDelta(p, weightIndex, weightDelta);
 
       // Calculate new weight 
-      double totalDelta = weightDelta - (momentum * momentumInfluence);
+      double totalDelta = (weightDelta * gradientDescentInfluence) - (momentum * momentumInfluence);
       result.Add(p._currentWeights[weightIndex] - totalDelta);
     }
     return result;
