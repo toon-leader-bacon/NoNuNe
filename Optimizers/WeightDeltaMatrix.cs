@@ -1,12 +1,19 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace NoNuNe {
 
 public class WeightDeltaMatrix {
 
-  Dictionary<int, List<double>> recentWeightDeltas = new Dictionary<int, List<double>>();
+
+  Dictionary<int, Queue<double>> recentWeightDeltas = new Dictionary<int, Queue<double>>();
+
+
+  private int historyLength = 100;
+
+  public WeightDeltaMatrix(int maintainHistoryLength = 100) {
+    this.historyLength = maintainHistoryLength;
+  }
 
   public void appendWeightDelta(Perceptron p, int weightId, double newWeightDelta) {
     this.appendWeightDelta(p.LayerId, p.PerceptronId, weightId, newWeightDelta);
@@ -16,31 +23,29 @@ public class WeightDeltaMatrix {
     int trueHash = NocabHashUtility.generateHash(LayerId, PerceptronId, weightId);
     if (!recentWeightDeltas.ContainsKey(trueHash)) {
       // If the provided true has is new
-      recentWeightDeltas.Add(trueHash, new List<double>());
+      recentWeightDeltas.Add(trueHash, new Queue<double>());
+    }
+    
+    Queue<double> targetDeltas = recentWeightDeltas[trueHash];
+    while(targetDeltas.Count >= this.historyLength) {
+      targetDeltas.Dequeue();
     }
 
-    recentWeightDeltas[trueHash].Add(newWeightDelta);
+    targetDeltas.Enqueue(newWeightDelta);
   }
 
-  public List<double> getRecentWeightDeltas(Perceptron p, int weightId, int howMany) {
-    return getRecentWeightDeltas(p.LayerId, p.PerceptronId, weightId, howMany);
+  public Queue<double> getRecentWeightDeltas(Perceptron p, int weightId) {
+    return getRecentWeightDeltas(p.LayerId, p.PerceptronId, weightId);
   }
 
-  public List<double> getRecentWeightDeltas(int LayerId, int PerceptronId, int weightId, int howMany) {
+  public Queue<double> getRecentWeightDeltas(int LayerId, int PerceptronId, int weightId) {
     int trueHash = NocabHashUtility.generateHash(LayerId, PerceptronId, weightId);
     if(!recentWeightDeltas.ContainsKey(trueHash)) {
       // If the provided true hash is new
-      return new List<double>();
+      return new Queue<double>();
     }
 
-    List<double> allWeightDeltas = recentWeightDeltas[trueHash];
-    howMany = Math.Abs(howMany);
-    if (howMany >= allWeightDeltas.Count) {
-      return allWeightDeltas;
-    }
-
-    int startIndex = allWeightDeltas.Count - howMany;
-    return allWeightDeltas.GetRange(startIndex, howMany);
+    return recentWeightDeltas[trueHash];
   }
 
 }; // public class MomentumOptimizer

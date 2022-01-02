@@ -197,134 +197,6 @@ public class Perceptron : JsonConvertible {
     return this._currentWeights[perceptronIndex];
   }
 
-
-  private double output_dETot_over_dOut(double expectedOutput) {
-    /**
-     * dErrorTotal
-     * ----------- = -(expected_output - actual_output) = actual_output - expected_output
-     *   dOutput
-     * 
-     * "How much does the total error change with respect to the output?"
-     *
-     * How far off was this perceptron from being correct.
-     * Effectively, the above equation is the derivative of the Total Error function: 
-     * ETotal = 0.5 * (expected_output - actual_output)^2
-     * 
-     * TODO: Consider using a different error calculation function? 
-     * TODO: And therefore different derivative here
-     */
-    return this.recentOutput - expectedOutput;
-  }
-
-  private double dOut_over_dNet() {
-    /**
-     * dOutput
-     * ------- = sigma'(this.recentOutput) = derivative of the activation function.
-     *  dNet
-     *
-     * "How much of the output of this perceptron change with respect to the total
-     *  net inputs?"
-     *
-     * NOTE: Some derivative functions are more preformant when passing in the recent output,
-     *  but some require the recent net. That's why the derivative function accepts in 
-     *  a Perceptron. The derivative function itself will have the choice of using
-     *  Perceptron.recentNet or Perceptron.recentOutput.
-     */
-    return activatorFuncDerivative(this);
-  }
-
-  private double dNet_over_dWeight(Layer leftLayer, int indexOfWeight) {
-    /**
-     *   dNet
-     * -------- = output of left Perceptron.
-     * dWeight_i
-     *
-     * (leftPerceptron_0) --Weight_0----V 
-     * (leftPerceptron_1) --Weight_1--> (thisPerceptron)
-     * (leftPerceptron_i) --Weight_i----^ 
-     *
-     *
-     * (0.5) --0.2----V 
-     * (0.1) --0.4--> (thisPerceptron)
-     * (0.8) --0.3----^
-     *
-     * Given the above left layer and index of 0, this function will return 0.5 because
-     * the output value of the left layer's 0th perceptron is 0.5.
-     * Similarly, for index i, the i-th perceptron's output will be returned. In the
-     * above example that would be 0.8.
-     */
-    // Result = recent output of the perceptron for the target weight
-    return leftLayer.getPerceptron(indexOfWeight).recentOutput;
-  }
-
-  private double hidden_dETot_over_dOut(Layer rightLayer) {
-    /**              
-     * dErrorTotal   dErr_Right0   dErr_Right1         dErr_RightI
-     * ----------- = ----------- + ----------- + ... + ------------ = (lowerDelta0 * Weight0) + (lowerDelta1 * Weight1) + ... + (lowerDeltaI * WeightI)
-     *   dOutput     dErr_Output   dErr_Output           dOutput
-     *                                               
-     *                                                     ||
-     *      ++=============================================++
-     *      ||
-     *     
-     * dErr_RightI   dErr_RightI   dNet_RightI
-     * ----------- = ----------- * ----------- = lowercaseDelta_RightI * WeightI
-     *   dOutput     dNet_RightI     dOutput
-     *
-     *                  ||             ||
-     *     ++===========++             ++====================================++
-     *     ||                                                                ||
-     *                                                                       ||
-     * dErr_RightI    dErr_RightI   dOut_RightI                              ||
-     * ------------ = ----------- * ----------- = lowercaseDelta_RightI      ||
-     * dNet_RightI    dOut_RightI   dNet_RightI                              ||
-     *                                                                       ||
-     *    ++=================================================================++
-     *    ||
-     *
-     * dNet_RightI
-     * ----------- = WeightI = The weight connecting this Perceptron to the rightI Perceptron
-     *   dOutput
-     *
-     * 
-     * dErrorTotal   
-     * ----------- = (lowerDelta0 * Weight0) + (lowerDelta1 * Weight1) + ... + (lowerDeltaI * WeightI)
-     *   dOutput
-     *
-     *
-     * How far off was this perceptron from being correct
-     */
-    double result = 0d;
-    foreach (Perceptron p in rightLayer) {
-      result += (p.lowercaseDelta * p.getWeight(this.PerceptronId));
-    }
-    return result;
-  }
-
-  private void _updateWeights(Layer leftLayer, double lowercaseDelta) {
-    /**
-     * Chain rule: 
-     *  dETotal    dETotal   dOutput      dNet                         dNet
-     * --------- = ------- * ------- * --------- = lowercaseDelta * ---------
-     * dWeight_i   dOutput    dNet     dWeight_i                    dWeight_i
-     *
-     * New Weight_i = old_weight_i - (learningRate * (dETotal/ dWeight_i))
-     * 
-     * Notice:
-     *  dETotal   dOutput
-     *  ------- * ------- = lowercaseDelta => The same value for every input weight_i
-     *  dOutput    dNet 
-     */
-    this.lowercaseDelta = lowercaseDelta; // TODO: Some more elegant way to deal with passing a class variable
-    this._newWeights = new List<double>(this._currentWeights.Count);
-    for(int i = 0; i < this._currentWeights.Count; i++) {
-      double dETot_over_dWeight = this.lowercaseDelta * dNet_over_dWeight(leftLayer, i);
-      double newWeight = this._currentWeights[i] - (this.learningRate * dETot_over_dWeight);
-
-      this._newWeights.Add(newWeight);
-    }
-  }
-
   public void armUpdateWeights(Layer leftLayer, Layer rightLayer) {
     /**
      * Hidden layer update weights function. 
@@ -336,8 +208,6 @@ public class Perceptron : JsonConvertible {
      * weights as part of the backpropagation algorithm. 
      */
     this._newWeights = optimizer.calculateNewWeights(this, leftLayer, rightLayer);
-    // this.lowercaseDelta = hidden_dETot_over_dOut(rightLayer) * this.dOut_over_dNet();
-    // _updateWeights(leftLayer, this.lowercaseDelta);
   }
 
   public void armUpdateWeights(Layer leftLayer, double expectedOutput) {
@@ -346,8 +216,6 @@ public class Perceptron : JsonConvertible {
      * See _updateWeights(...) for the math.
      */
     this._newWeights = optimizer.calculateNewWeights(this, leftLayer, expectedOutput);
-    // this.lowercaseDelta = this.output_dETot_over_dOut(expectedOutput) * this.dOut_over_dNet();
-    // _updateWeights(leftLayer, this.lowercaseDelta);
   }
 
   public void applyUpdateWeights() {

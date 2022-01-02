@@ -29,7 +29,7 @@ namespace NoNuNe {
       
       Console.WriteLine("hello Nocab");
 
-      List<DataPoint> data = DataGenerator.binary0to9(5000);
+      List<DataPoint> data = DataGenerator.binary0to9(50000);
       Gym gym = new Gym();
       gym.epochTraining(n, data, 5);
       Console.WriteLine("Training done");

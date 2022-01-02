@@ -1,17 +1,20 @@
+using System;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace NoNuNe {
 
 public class MomentumOptimizer {
 
-  public WeightDeltaMatrix weightDeltaLookup = new WeightDeltaMatrix();
-
-  public int historyLength = 5;
-
+  public WeightDeltaMatrix weightDeltaLookup;
   public double momentumInfluence = 0.2d;
 
   // Used during hidden layer backpropogation 
   private Dictionary<Perceptron, double> lowercaseDeltaLookup = new Dictionary<Perceptron, double>();
+
+  public MomentumOptimizer(int historyLength = 5) {
+    this.weightDeltaLookup = new WeightDeltaMatrix(historyLength);
+  }
 
 #region Backprop
 
@@ -141,8 +144,9 @@ public class MomentumOptimizer {
       double dETot_over_dWeight = lowercaseDelta * dNet_over_dWeight(leftLayer, weightIndex);
       double weightDelta = (p.learningRate * dETot_over_dWeight);
 
-      // Weight delta momentum
-      double momentum = average(weightDeltaLookup.getRecentWeightDeltas(p, weightIndex, historyLength));
+      // Weight delta momentum 
+      // TODO: The toArray() call is really inefficient :( 
+      double momentum = average(weightDeltaLookup.getRecentWeightDeltas(p, weightIndex).ToArray());
       weightDeltaLookup.appendWeightDelta(p, weightIndex, weightDelta);
 
       // Calculate new weight 
@@ -180,7 +184,7 @@ public class MomentumOptimizer {
 
 #endregion Backprop
 
-  public static double average(List<double> weights) {
+  public static double average(ICollection<double> weights) {
     if(weights.Count == 0) { return 0d; }
     double sum = 0d;
     foreach(double w in weights) {
