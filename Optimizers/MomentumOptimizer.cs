@@ -1,5 +1,3 @@
-using System;
-using System.Globalization;
 using System.Collections.Generic;
 
 namespace NoNuNe {
@@ -7,7 +5,7 @@ namespace NoNuNe {
 public class MomentumOptimizer {
 
   public WeightDeltaMatrix weightDeltaLookup;
-  public double momentumInfluence = 0.4d;
+  public double momentumInfluence = 0.3d;
   public double gradientDescentInfluence;
 
   // Used during hidden layer backpropogation 
