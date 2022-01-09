@@ -100,17 +100,6 @@ public class Perceptron : INeuron {
   private double _learningRate = 0.005d;
   public double learningRate { get { return this._learningRate; } }
 
-  /**
-   * A value used during back propagation. It's convenient to calculate 
-   * it once and save the value here for reuse.
-   * The value SHOULD only be set in the armUpdateWeights(...) functions.
-   * This value is equal
-   *  dETotal   dOutput
-   *  ------- * ------- = lowercaseDelta
-   *  dOutput    dNet 
-   */
-  private double lowercaseDelta;
-
   public Perceptron(double initialThreshold,
                     PerceptronFactory.EActivationFunction activationEnum,
                     PerceptronFactory.ECostFunction costFunction) {
