@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using LightJson;
 
 namespace NoNuNe {
-public class Perceptron : JsonConvertible {
+public class Perceptron : INeuron {
 
   // TODO: Should this stay static? 
   public static MomentumOptimizer optimizer = new MomentumOptimizer();
@@ -30,6 +30,7 @@ public class Perceptron : JsonConvertible {
    * net = [inputs] * [currentWeights] - threshold
    */
   public List<double> _currentWeights = new List<double>();
+  public List<double> getAllWeights() { return this._currentWeights; }
 
   /**
    * The new weights this perceptron should have once 
@@ -57,7 +58,7 @@ public class Perceptron : JsonConvertible {
    * The Activator Function's Derivative is used during back 
    * propagation. 
    */
-  public Func<Perceptron, double> activatorFuncDerivative;
+  public Func<Perceptron, double> _activatorFuncDerivative;
 
   private PerceptronFactory.ECostFunction costTypeEnum;
   public Func<double, double, double> costFunc;
@@ -96,7 +97,8 @@ public class Perceptron : JsonConvertible {
    * A value that represents how quickly this perceptron should adjust
    * itself during back propagation. Typically between [0.1, 0.01]
    */
-  public double learningRate = 0.005d;
+  private double _learningRate = 0.005d;
+  public double learningRate { get { return this._learningRate; } }
 
   /**
    * A value used during back propagation. It's convenient to calculate 
@@ -109,28 +111,13 @@ public class Perceptron : JsonConvertible {
    */
   private double lowercaseDelta;
 
-  // public Perceptron(double initialThreshold,
-  //                   Func<double, double> activatorFunc,
-  //                   Func<Perceptron, double> activatorFuncDerivative,
-  //                   Func<double, double, double> costFunction) {
-  //   this._threshold = initialThreshold;
-  //   this.activatorFunc = activatorFunc;
-  //   this.activatorFuncDerivative = activatorFuncDerivative;
-
-  //   // The weights will be populated "just in time" in the _evaluate() function
-  //   // using the PerceptronFactory.randomWeight() function
-  //   // Because the perceptron doesn't know how many inputs it's getting from
-  //   // the layer before it. 
-  //   this._currentWeights = new List<double>();
-  // }
-
   public Perceptron(double initialThreshold,
                     PerceptronFactory.EActivationFunction activationEnum,
                     PerceptronFactory.ECostFunction costFunction) {
     this._threshold = initialThreshold;
     this.activatorTypeEnum = activationEnum;
     this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
-    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+    this._activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
 
     this.costTypeEnum = costFunction;
     this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
@@ -186,6 +173,10 @@ public class Perceptron : JsonConvertible {
     this._recentNet = this._evaluate(xInputs); 
     this._recentOutput = this.activatorFunc(this._recentNet);
     return this.recentOutput;
+  }
+
+  public double activatorFuncDerivative() {
+    return this._activatorFuncDerivative(this);
   }
 
 #region Backprop
@@ -270,7 +261,7 @@ public class Perceptron : JsonConvertible {
     // If parse fails, default is ReLU
     this.activatorTypeEnum = (enumParseSuccess) ? newActivatorTypeEnum : PerceptronFactory.EActivationFunction.ReLU;
     this.activatorFunc = PerceptronFactory.getActivatorFunc(this.activatorTypeEnum);
-    this.activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
+    this._activatorFuncDerivative = PerceptronFactory.getDerivativeFunc(this.activatorTypeEnum);
 
     // Cost function
     PerceptronFactory.ECostFunction newCostTypeEnum;
@@ -280,7 +271,7 @@ public class Perceptron : JsonConvertible {
     this.costFunc = PerceptronFactory.getCostFunc(this.costTypeEnum);
 
     this._threshold = jo["Threshold"];
-    this.learningRate = jo["LearningRate"];
+    this._learningRate = jo["LearningRate"];
   }
 
     

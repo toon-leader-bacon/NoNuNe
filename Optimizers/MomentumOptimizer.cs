@@ -9,7 +9,7 @@ public class MomentumOptimizer {
   public double gradientDescentInfluence;
 
   // Used during hidden layer backpropogation 
-  private Dictionary<Perceptron, double> lowercaseDeltaLookup = new Dictionary<Perceptron, double>();
+  private Dictionary<INeuron, double> lowercaseDeltaLookup = new Dictionary<INeuron, double>();
 
   public MomentumOptimizer(int historyLength = 10) {
     this.weightDeltaLookup = new WeightDeltaMatrix(historyLength);
@@ -18,7 +18,7 @@ public class MomentumOptimizer {
 
 #region Backprop
 
-  public List<double> calculateNewWeights(Perceptron p, Layer leftLayer, double expectedOutput) {
+  public List<double> calculateNewWeights(INeuron p, Layer leftLayer, double expectedOutput) {
     /**
      * Output layer update weights function. 
      * See _updateWeights(...) for the math.
@@ -28,7 +28,7 @@ public class MomentumOptimizer {
     return gradientDescentWithMomentum(p, leftLayer, lowercaseDelta);
   }
 
-  public List<double> calculateNewWeights(Perceptron p, Layer leftLayer, Layer rightLayer) {
+  public List<double> calculateNewWeights(INeuron p, Layer leftLayer, Layer rightLayer) {
     /**
      * Hidden layer update weights function. 
      * See _updateWeights(...) for the math.
@@ -45,7 +45,7 @@ public class MomentumOptimizer {
 
 #region Deep Math
 
- private double output_dETot_over_dOut(Perceptron p, double expectedOutput) {
+ private double output_dETot_over_dOut(INeuron p, double expectedOutput) {
     /**
      * dErrorTotal
      * ----------- = -(expected_output - actual_output) = actual_output - expected_output
@@ -61,7 +61,7 @@ public class MomentumOptimizer {
     return p.recentOutput - expectedOutput;
   }
 
-  private double hidden_dETot_over_dOut(Perceptron p, Layer rightLayer) {
+  private double hidden_dETot_over_dOut(INeuron p, Layer rightLayer) {
     /**              
      * dErrorTotal   dErr_Right0   dErr_Right1         dErr_RightI
      * ----------- = ----------- + ----------- + ... + ------------ = (lowerDelta0 * Weight0) + (lowerDelta1 * Weight1) + ... + (lowerDeltaI * WeightI)
@@ -99,13 +99,13 @@ public class MomentumOptimizer {
      * How far off was this perceptron from being correct
      */
     double result = 0d;
-    foreach (Perceptron rightP in rightLayer) {
+    foreach (INeuron rightP in rightLayer) {
       result += (lowercaseDeltaLookup[rightP] * rightP.getWeight(p.PerceptronId));
     }
     return result;
   }
 
-  private double dOut_over_dNet(Perceptron p) {
+  private double dOut_over_dNet(INeuron p) {
     /**
      * dOutput
      * ------- = sigma'(this.recentOutput) = derivative of the activation function.
@@ -119,10 +119,10 @@ public class MomentumOptimizer {
      *  a Perceptron. The derivative function itself will have the choice of using
      *  Perceptron.recentNet or Perceptron.recentOutput.
      */
-    return p.activatorFuncDerivative(p);
+    return p.activatorFuncDerivative();
   }
 
-  private List<double> gradientDescentWithMomentum(Perceptron p, Layer leftLayer, double lowercaseDelta) {
+  private List<double> gradientDescentWithMomentum(INeuron p, Layer leftLayer, double lowercaseDelta) {
     /**
      * Chain rule: 
      *  dETotal    dETotal   dOutput      dNet                         dNet
@@ -139,7 +139,7 @@ public class MomentumOptimizer {
      *  dOutput    dNet 
      */
     List<double> result = new List<double>();
-    for(int weightIndex = 0; weightIndex < p._currentWeights.Count; weightIndex++) {
+    for(int weightIndex = 0; weightIndex < p.getAllWeights().Count; weightIndex++) {
       // Gradient Descent 
       double dETot_over_dWeight = lowercaseDelta * dNet_over_dWeight(leftLayer, weightIndex);
       double weightDelta = (p.learningRate * dETot_over_dWeight);
@@ -151,7 +151,7 @@ public class MomentumOptimizer {
 
       // Calculate new weight 
       double totalDelta = (weightDelta * gradientDescentInfluence) - (momentum * momentumInfluence);
-      result.Add(p._currentWeights[weightIndex] - totalDelta);
+      result.Add(p.getAllWeights()[weightIndex] - totalDelta);
     }
     return result;
   }

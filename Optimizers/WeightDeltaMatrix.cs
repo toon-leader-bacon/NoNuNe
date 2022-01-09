@@ -15,7 +15,7 @@ public class WeightDeltaMatrix {
     this.historyLength = maintainHistoryLength;
   }
 
-  public void appendWeightDelta(Perceptron p, int weightId, double newWeightDelta) {
+  public void appendWeightDelta(INeuron p, int weightId, double newWeightDelta) {
     this.appendWeightDelta(p.LayerId, p.PerceptronId, weightId, newWeightDelta);
   }   
 
@@ -34,7 +34,7 @@ public class WeightDeltaMatrix {
     targetDeltas.Enqueue(newWeightDelta);
   }
 
-  public Queue<double> getRecentWeightDeltas(Perceptron p, int weightId) {
+  public Queue<double> getRecentWeightDeltas(INeuron p, int weightId) {
     return getRecentWeightDeltas(p.LayerId, p.PerceptronId, weightId);
   }
 
