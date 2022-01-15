@@ -262,7 +262,6 @@ public class Perceptron : INeuron {
     this._threshold = jo["Threshold"];
     this._learningRate = jo["LearningRate"];
   }
-
     
 #endregion JsonConvertable
 
