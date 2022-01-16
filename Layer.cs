@@ -5,12 +5,12 @@ using LightJson;
 
 namespace NoNuNe {
   
-public class Layer : IEnumerable<Perceptron>, JsonConvertible
+public class Layer : IEnumerable<INeuron>, JsonConvertible
 {
 
   public int LayerId { get; set; }
 
-  private List<Perceptron> perceptrons = new List<Perceptron>();
+  private List<INeuron> perceptrons = new List<INeuron>();
   public int Count { get {return perceptrons.Count; } }
 
 
@@ -26,7 +26,7 @@ public class Layer : IEnumerable<Perceptron>, JsonConvertible
   public List<double> evaluate(List<double> inputs) {
     List<double> result = new List<double>(perceptrons.Count);
     for(int i = 0; i < perceptrons.Count; i++) {
-      Perceptron p = this.perceptrons[i];
+      INeuron p = this.perceptrons[i];
       result.Add(p.activationValue(inputs));
     }
     return result;
@@ -48,7 +48,7 @@ public class Layer : IEnumerable<Perceptron>, JsonConvertible
     }
 
     for(int i = 0; i < this.perceptrons.Count; i++) {
-      Perceptron p = this.perceptrons[i];
+      INeuron p = this.perceptrons[i];
       double expected = expectedOutput[i];
 
       p.armUpdateWeights(leftLayer, expected);
@@ -56,18 +56,18 @@ public class Layer : IEnumerable<Perceptron>, JsonConvertible
   }
 
   public void armUpdateWeights(Layer leftLayer, Layer rightLayer) {
-    foreach(Perceptron p in this.perceptrons) {
+    foreach(INeuron p in this.perceptrons) {
       p.armUpdateWeights(leftLayer, rightLayer);
     }
   }
 
-  public void appendPerceptron(Perceptron p) {
+  public void appendPerceptron(INeuron p) {
     p.LayerId = this.LayerId;
     p.PerceptronId = this.perceptrons.Count;
     this.perceptrons.Add(p);
   }
 
-  public Perceptron getPerceptron(int perceptronId) {
+  public INeuron getPerceptron(int perceptronId) {
     if ((perceptronId < 0) || (perceptronId >= this.perceptrons.Count)) {
       throw new ArgumentException($"Invalid perceptronId: {perceptronId}");
     }
@@ -75,7 +75,7 @@ public class Layer : IEnumerable<Perceptron>, JsonConvertible
     return this.perceptrons[perceptronId];
   }
 
-  public IEnumerator<Perceptron> GetEnumerator() {
+  public IEnumerator<INeuron> GetEnumerator() {
     return this.perceptrons.GetEnumerator();
   }
 
@@ -108,7 +108,7 @@ public class Layer : IEnumerable<Perceptron>, JsonConvertible
     JsonUtilitiesNocab.assertValidJson(jo, MY_JSON_TYPE);
     this.LayerId = jo["LayerId"];
     
-    this.perceptrons = new List<Perceptron>();
+    this.perceptrons = new List<INeuron>();
     foreach(JsonObject jsonPercep in jo["Perceptrons"].AsJsonArray) {
       this.perceptrons.Add(new Perceptron(jsonPercep));
     }

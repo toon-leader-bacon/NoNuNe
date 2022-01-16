@@ -61,7 +61,7 @@ public class Network: JsonConvertible
     return this.layers[layerId];
   }
 
-  public Perceptron GetPerceptron(int layerId, int perceptronId) {
+  public INeuron GetPerceptron(int layerId, int perceptronId) {
     return this.getLayer(layerId).getPerceptron(perceptronId);
   }
 

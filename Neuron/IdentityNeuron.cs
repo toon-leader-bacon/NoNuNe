@@ -29,6 +29,25 @@ public class IdentityNeuron : INeuron {
     return 1;
   }
 
+  public double activationValue(List<double> xInputs) {
+    if(this.PerceptronId >= xInputs.Count) {
+      // TODO: Consider returning noise instead of 0?
+      return 0;
+    }
+    return xInputs[PerceptronId];
+  }
+  
+  public void armUpdateWeights(Layer leftLayer, Layer rightLayer) {
+    // Identity neuron does not change during back propagation
+    return;
+  }
+
+  public void armUpdateWeights(Layer leftLayer, double expectedOutput) {
+    // Identity neuron does not change during back propagation
+    return;
+  }
+
+
   public List<double> getAllWeights() {
     return new List<double>{1};
   }

@@ -35,6 +35,35 @@ public interface INeuron : JsonConvertible {
   double learningRate { get; }
 
   /**
+   * Given a vector of input values, evaluate them and then
+   * use the specified activator function.
+   * a = sigma(z)
+   * 
+   * a = output of this function (activation value)
+   * sigma = activation function
+   * z = output of evaluate(xInputs) function
+   */
+  double activationValue(List<double> xInputs); 
+
+
+  /**
+   * Hidden layer update weights function. 
+   * See _updateWeights(...) for the math.
+   * NOTE: after all the layers have been "armed" to update their weights,
+   *  you must still run the applyUpdateWeights for it to take effect.
+   *
+   * The arm and apply are two steps because leftern layers need the "old"
+   * weights as part of the backpropagation algorithm. 
+   */
+  void armUpdateWeights(Layer leftLayer, Layer rightLayer);
+
+  /**
+   * Output layer update weights function. 
+   * See _updateWeights(...) for the math.
+   */
+  void armUpdateWeights(Layer leftLayer, double expectedOutput);
+
+  /**
    * Get the value of the incoming weight to this perceptron. The
    * specific incoming weight is specified by the provided perceptron ID.
    */

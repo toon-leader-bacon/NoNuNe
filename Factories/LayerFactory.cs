@@ -3,6 +3,20 @@ namespace NoNuNe {
   
 public class LayerFactory : PerceptronFactory{
 
+  public Layer buildIdentityLayer(int layerId = 0, int size = 0) {
+    Layer result = new Layer();
+    result.LayerId = layerId;
+    
+    for(int i = 0; i < size; i++) {
+      INeuron identity = new IdentityNeuron();
+      identity.LayerId = layerId;
+      identity.PerceptronId = i;
+      result.appendPerceptron(identity);
+    }
+
+    return result;
+  }
+
   public Layer buildLayer(int layerId = 0,
                           int size = 0) {
     return this.buildLayer(layerId: layerId, size: size, EActivationFunction.Sigmoid);

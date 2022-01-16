@@ -13,8 +13,7 @@ namespace NoNuNe {
       Console.WriteLine("]");
     }
 
-
-    static void Main(string[] args) {
+    static void train() {
       LayerFactory lf = new LayerFactory();
       lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
       lf.setCostFunction(PerceptronFactory.ECostFunction.HingeLoss);
@@ -31,6 +30,20 @@ namespace NoNuNe {
       Gym gym = new Gym();
       gym.epochTraining(n, data, 15);
       Console.WriteLine("Training done");
+
+    }
+
+    static void Main(string[] args) {
+      LayerFactory lf = new LayerFactory();
+      lf.setActivatorFunc(PerceptronFactory.EActivationFunction.Sigmoid);
+      lf.setCostFunction(PerceptronFactory.ECostFunction.HingeLoss);
+
+      Network n = new Network(0);
+      // n.appendLayer(lf.buildLayer(layerId: 0, size: 4, perceptronActivation: PerceptronFactory.EActivationFunction.ReLU)); // Input layer
+      n.appendLayer(lf.buildIdentityLayer(0, 4));
+
+      List<double> result = n.evaluate(new List<double>(){1,0,0,0});
+      PrintListOfDouble(result);
     }
   }
 }
